@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1790186748 source:/home/daza/projetos/arvoreBDinamica/main.c
+	"btree.h"
+
+1790114923 /home/daza/projetos/arvoreBDinamica/btree.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1790186780 source:/home/daza/projetos/arvoreBDinamica/btree.c
+	"btree.h"
+
