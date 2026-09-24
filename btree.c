@@ -2,10 +2,11 @@
 #include "btree.h"
 
 
+
 typedef struct btreeNode{
-    int n;  //qtd de valores no nó
-    int *keys;  //os valores do nó
-    char **children; //nome dos arquivos
+    int n;
+    int *keys;
+    char **children;
     bool leaf;
 }btreeNode;
 
@@ -14,6 +15,7 @@ typedef struct SearchResult{
     btreeNode *node; // nó onde a chave foi encontrada
     int index;       // posição do keys em node->keys[index]
 } searchResult;
+
 
 btreeNode* createNode(int T, bool leaf){
     btreeNode* node = (btreeNode*) malloc(sizeof(btreeNode));
@@ -52,7 +54,7 @@ searchResult searchBTree(btreeNode *Node, int target){
         }
     }
     if(Node->leaf == true){
-        return -1;
+        return ;
     }
     ///adicionar a leitura do nó filho aqui
     return searchBTree(, target); ///passar o filho do nó lido na função
@@ -62,6 +64,7 @@ searchResult searchBTree(btreeNode *Node, int target){
 
 btreeNode* splitChild(btreeNode *Node, int index){
     btreeNode *rightNode = createNode(T,1);
+    rightNode->leaf = fullChild->leaf;
     bTreeNode *parent = Node;
     bTreeNode *fullChild = Node->children[index];
 
@@ -73,11 +76,29 @@ btreeNode* splitChild(btreeNode *Node, int index){
     for(int i = midle + 1; i <=  end; i++){
         rightNode->keys[startRight] = fullChild->keys[i];
         startRight++;
+
     }
+
+    if (!fullChild->leaf) {
+        for (int j = midle + 1; j <= end + 1; j++) {
+            rightNode->children[j - (midle + 1)] = fullChild->children[j];
+        }
+    }
+
     rightNode->n = startRigth;
     fullChild->n = midle;
 
+    for(int i = parent->n -1; i >= index; i--){
+            parent->keys[i+1] = parent->keys[i];
 
+    }
+    parent->keys[index] = fullchild->keys[midle];
+    parent->n = parent->n+1;
+
+    for(int i = parent->n-1; i > index; i--){
+        parent->children[i+1] = parent->children[i];
+    }
+    parent->children[index+1] = rightNode;
 }
 
 

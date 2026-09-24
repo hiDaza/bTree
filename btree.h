@@ -13,6 +13,11 @@ typedef struct btreeNode{
 }btreeNode;
 
 
+typedef struct SearchResult{
+    btreeNode *node; // nó onde a chave foi encontrada
+    int index;       // posição do keys em node->keys[index]
+} searchResult;
+
 
 btreeNode* createNode(int T, bool leaf);
 

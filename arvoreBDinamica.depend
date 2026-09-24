@@ -10,3 +10,11 @@
 1790186780 source:/home/daza/projetos/arvoreBDinamica/btree.c
 	"btree.h"
 
+1790269902 source:c:\users\gerson.lucas_unesp\desktop\projetos\btree\main.c
+	"btree.h"
+
+1790282276 c:\users\gerson.lucas_unesp\desktop\projetos\btree\btree.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
