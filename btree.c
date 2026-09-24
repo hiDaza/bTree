@@ -56,8 +56,28 @@ searchResult searchBTree(btreeNode *Node, int target){
     }
     ///adicionar a leitura do nó filho aqui
     return searchBTree(, target); ///passar o filho do nó lido na função
-
 }
 
+
+
+btreeNode* splitChild(btreeNode *Node, int index){
+    btreeNode *rightNode = createNode(T,1);
+    bTreeNode *parent = Node;
+    bTreeNode *fullChild = Node->children[index];
+
+    int start = 0;
+    int end = fullChild->n - 1;
+    int midle = (start + end) / 2;
+    int startRigth = 0;
+
+    for(int i = midle + 1; i <=  end; i++){
+        rightNode->keys[startRight] = fullChild->keys[i];
+        startRight++;
+    }
+    rightNode->n = startRigth;
+    fullChild->n = midle;
+
+
+}
 
 
