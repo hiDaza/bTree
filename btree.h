@@ -21,5 +21,17 @@ typedef struct SearchResult{
 
 btreeNode* createNode(int T, bool leaf);
 
+searchResult searchBTree(btreeNode *Node, int target);
+
+
+
+btreeNode* splitChild(btreeNode *Node, int index);
+
+btreeNode* insertNode(btreeNode *Node, int key);
+
+
+
+
+
 
 #endif // BTREE_H_INCLUDED

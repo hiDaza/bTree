@@ -102,3 +102,10 @@ btreeNode* splitChild(btreeNode *Node, int index){
 }
 
 
+
+btreeNode* insertCLRSNode(btreeNode *Node, int key){
+    if(Node->n >= 2 * T - 1){ //raiz cheia
+
+    }
+}
+
