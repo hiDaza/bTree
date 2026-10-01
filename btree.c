@@ -104,8 +104,28 @@ btreeNode* splitChild(btreeNode *Node, int index){
 
 
 btreeNode* insertCLRSNode(btreeNode *Node, int key){
-    if(Node->n >= 2 * T - 1){ //raiz cheia
-
+    start = 0;
+    end = Node->n -1;
+    midle = (start + end) / 2;
+    if(Node->n >= 2 * T - 1){ //inicia verificando se a raiz esta cheia
+        newRoot = createNode(T,false);
+        newRoot = Node->keys[midle];
+        newRoot->children[0] = Node;
+        splitChild(newRoot,0);
+        insertNonFull();
+    }else{
+        insertNonFull();
     }
+
 }
 
+
+btreeNode* insertNonFull(btreeNode *Node, key){
+    if(Node->leaf){
+        for(int i = Node->n - 1; i <  ; i++){
+
+        }
+    }
+
+
+}

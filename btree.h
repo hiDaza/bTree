@@ -27,7 +27,9 @@ searchResult searchBTree(btreeNode *Node, int target);
 
 btreeNode* splitChild(btreeNode *Node, int index);
 
-btreeNode* insertNode(btreeNode *Node, int key);
+btreeNode* insertCLRSNode(btreeNode *Node, int key);
+
+btreeNode* insertNonFull(btreeNode *Node, key);
 
 
 
