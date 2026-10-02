@@ -112,7 +112,7 @@ btreeNode* insertCLRSNode(btreeNode *Node, int key){
         newRoot = Node->keys[midle];
         newRoot->children[0] = Node;
         splitChild(newRoot,0);
-        insertNonFull();
+        insertNonFull(,key); //pensar em quem passar o pai ou o filho
     }else{
         insertNonFull();
     }
@@ -121,11 +121,23 @@ btreeNode* insertCLRSNode(btreeNode *Node, int key){
 
 
 btreeNode* insertNonFull(btreeNode *Node, key){
+    int position = 0;
     if(Node->leaf){
-        for(int i = Node->n - 1; i <  ; i++){
-
+    int i = Node->n-1
+        while(i>= 0 && Node->keys[i] > key){
+            Node->keys[i+i] = Node->keys[i];
+            i--;
         }
+        Node->keys[i+1] = key;
+        Node->n++
+        ///adicionar escrita do nó aqui
+    }else{
+
+
     }
+
+
+}
 
 
 }
