@@ -18,3 +18,13 @@
 	<stdlib.h>
 	<stdbool.h>
 
+1791040630 source:/home/daza/projetos/bTree/main.c
+	"btree.h"
+
+1791055673 /home/daza/projetos/bTree/btree.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<stdint.h>
+

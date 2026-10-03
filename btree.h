@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-
+#include <string.h>
+#include <stdint.h>
+#define BUFFERSIZE 64
 typedef struct btreeNode{
     int n;
     int *keys;
@@ -21,19 +23,22 @@ typedef struct SearchResult{
 
 btreeNode* createNode(int T, bool leaf);
 
-searchResult searchBTree(btreeNode *Node, int target);
 
+searchResult searchBTree(btreeNode *Node, int target);
 
 
 btreeNode* splitChild(btreeNode *Node, int index);
 
+
 btreeNode* insertCLRSNode(btreeNode *Node, int key);
 
-btreeNode* insertNonFull(btreeNode *Node, key);
+
+void insertNonFull(btreeNode *Node, int key);
 
 
+void numToBase62(uint64_t num, char *out);
 
 
-
+char* allocateNode(btreeNode **newNode, int T, Metadata *meta);
 
 #endif // BTREE_H_INCLUDED
