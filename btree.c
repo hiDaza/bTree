@@ -9,7 +9,7 @@ typedef struct btreeNode{
     bool leaf;
     int *keys;
     char **children;
-}btreeNode;
+} btreeNode;
 
 
 typedef struct SearchResult{
@@ -80,7 +80,10 @@ searchResult searchBTree(btreeNode *Node, int target,int T){
         }
     }
     if(Node->leaf){
-        return ;
+        searchResult notFound;
+        notFound.index = -1;
+        notFound.node = NULL;
+        return notFound; //usar outra operação para finalizar talvez para nao precisar alocar uma nova struct
     }
     btreeNode *childNode = diskRead(Node->children[start],T);
 
@@ -100,8 +103,8 @@ void splitChild(btreeNode *parent, int index, btreeNode *fullChild, int T, Metad
     int startRigth = 0;
 
     for(int i = midle + 1; i <=  end; i++){
-        rightNode->keys[startRight] = fullChild->keys[i];
-        startRight++;
+        rightNode->keys[startRigth] = fullChild->keys[i];
+        startRigth++;
     }
 
     if (!fullChild->leaf) {
@@ -110,7 +113,7 @@ void splitChild(btreeNode *parent, int index, btreeNode *fullChild, int T, Metad
         }
     }
 
-    rightNode->n = rightCount;
+    rightNode->n = startRigth;
     fullChild->n = midle;
 
     for (int i = parent->n; i > index; i--) {
@@ -133,25 +136,29 @@ void splitChild(btreeNode *parent, int index, btreeNode *fullChild, int T, Metad
 }
 
 
-btreeNode* insertCLRSNode(btreeNode *Node, int key){
-    start = 0;
-    end = Node->n -1;
-    midle = (start + end) / 2;
+void insertCLRSNode(btreeNode *Node, int key,int T,Metadata *meta){
+    int start = 0;
+    int end = Node->n -1;
+    int midle = (start + end) / 2;
     if(Node->n >= 2 * T - 1){ //inicia verificando se a raiz esta cheia
-        newRoot = createNode(T,false);
-        newRoot = Node->keys[midle];
-        newRoot->children[0] = Node;
-        splitChild(newRoot,0);
-        insertNonFull(,key); //pensar em quem passar o pai ou o filho
+        btreeNode *newRoot; //criação de um novo nó para receber a raiz cheia para possibilitar o split child na raiz
+        newRoot = createNode(T,false,meta);
+        strncpy(newRoot->children[0],Node->id,BUFFERSIZE-1);
+        splitChild(newRoot,0,Node,T,meta);
+        strncpy(meta->root_id,newRoot->id, BUFFERSIZE-1); //com a criação do newRoot agora existe uma nova raiz que deve ser salva no metadata
+        insertNonFull(newRoot,key,T,meta);
+        freeNode(newRoot,T);
+        freeNode(Node,T);
     }else{
-        insertNonFull();
+        insertNonFull(Node,key,T,meta);
+        freeNode(Node,T);
     }
 
 }
 
 
-void insertNonFull(btreeNode *Node, int key, int T){
-    int position = 0;
+void insertNonFull(btreeNode *Node, int key, int T,Metadata *meta){
+    int s = 0;
     if(Node->leaf){
         int i = Node->n-1;
             while(i >= 0 && Node->keys[i] > key){
@@ -167,15 +174,17 @@ void insertNonFull(btreeNode *Node, int key, int T){
                 i--;
             }
             i++;
-            btreeNode *child = diskRead(Node->children[i],T)
-            ///adicionar leitura aqui do filho
-            if(Node->children[i]->n >= 2 * T-1){
+            btreeNode *child = diskRead(Node->children[i],T);
+            if(child->n >= 2 * T-1){
                 splitChild(Node,i,child,T,meta);
                 if(key > Node->keys[i]){
                     i++;
+                    freeNode(child,T);
+                    child = diskRead(Node->children[i],T);
                 }
             }
-            insertNonFull(Node->children[i],key);
+            insertNonFull(child,key,T,meta);
+            freeNode(child,T);
     }
 }
 
@@ -203,7 +212,7 @@ void numToBase62(uint64_t num, char *out) {
     out[j] = '\0';
 }
 
-
+/*
 char* allocateNode(btreeNode **newNode, int T, Metadata *meta) {
     uint64_t raw_id;
 
@@ -224,10 +233,10 @@ char* allocateNode(btreeNode **newNode, int T, Metadata *meta) {
 
     return id_str;
 }
-
+*/
 
 void diskWrite(btreeNode *Node, int T){
-    if(Node == NULL || Node_id == NULL){
+    if(Node == NULL || Node->id == NULL){
         return;
     }
 
@@ -247,7 +256,7 @@ void diskWrite(btreeNode *Node, int T){
     for(int i = 0; i < 2 * T ; i++){
         char buffer[BUFFERSIZE] = "";
 
-        if(!Node->leaf && Node->children != NULL && Node->children[[i] != NULL){
+        if(!Node->leaf && Node->children != NULL && Node->children[i] != NULL){
             strncpy(buffer, Node->children[i], BUFFERSIZE - 1);
         }
 
@@ -276,7 +285,7 @@ btreeNode* diskRead(const char *Node_id, int T){
     fread(&Node->leaf, sizeof(bool),1,file);
 
     Node->keys = (int*) malloc(sizeof(int) * (2 * T -1));
-    fread(node->keys, sizeof(int), 2 * T -1, file);
+    fread(Node->keys, sizeof(int), 2 * T -1, file);
 
     Node->children = (char**) malloc(sizeof(char*) * (2 * T));
     for(int i = 0; i < 2 * T; i++){
