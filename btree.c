@@ -280,9 +280,11 @@ btreeNode* diskRead(const char *Node_id, int T){
     }
 
     btreeNode *Node = (btreeNode*) malloc(sizeof(btreeNode));
+    strncpy(Node->id,Node_id, BUFFERSIZE-1);
 
     fread(&Node->n, sizeof(int),1,file);
     fread(&Node->leaf, sizeof(bool),1,file);
+
 
     Node->keys = (int*) malloc(sizeof(int) * (2 * T -1));
     fread(Node->keys, sizeof(int), 2 * T -1, file);
