@@ -3,25 +3,6 @@
 
 
 
-typedef struct btreeNode{
-    char id[BUFFERSIZE];
-    int n;
-    bool leaf;
-    int *keys;
-    char **children;
-} btreeNode;
-
-
-typedef struct SearchResult{
-    btreeNode *node; // nó onde a chave foi encontrada
-    int index;       // posição do keys em node->keys[index]
-} searchResult;
-
-typedef struct Metadata{
-    uint64_t next_id;
-    char root_id[BUFFERSIZE];
-}Metadata;
-
 btreeNode* createNode(int T, bool leaf, Metadata *meta){
     btreeNode* node = (btreeNode*) malloc(sizeof(btreeNode));
 
@@ -30,10 +11,10 @@ btreeNode* createNode(int T, bool leaf, Metadata *meta){
     node->n = 0;
     node->leaf = leaf;
     node->keys = (int*) malloc((2 * T - 1) * sizeof(int));
-    node->children = (char**) malloc((2 * T) * sizeof(char));
+    node->children = (char**) malloc((2 * T) * sizeof(char*));
 
     for(int i = 0; i < 2 * T; i++){
-        node->children[i] = (char*) malloc(sizeof(char) * BUFFERSIZE);
+        node->children[i] = (char*) malloc(sizeof(char*) * BUFFERSIZE);
         node->children[i][0] = '\0';
     }
 
@@ -109,7 +90,7 @@ void splitChild(btreeNode *parent, int index, btreeNode *fullChild, int T, Metad
 
     if (!fullChild->leaf) {
         for (int j = midle + 1; j <= fullChild->n; j++) {
-            strncpy(rightNode->children[j - (midle + 1)], fullChild->children[j], ID_SIZE - 1);
+            strncpy(rightNode->children[j - (midle + 1)], fullChild->children[j], BUFFERSIZE - 1);
         }
     }
 
@@ -117,10 +98,10 @@ void splitChild(btreeNode *parent, int index, btreeNode *fullChild, int T, Metad
     fullChild->n = midle;
 
     for (int i = parent->n; i > index; i--) {
-        strncpy(parent->children[i + 1], parent->children[i], ID_SIZE - 1);
+        strncpy(parent->children[i + 1], parent->children[i], BUFFERSIZE - 1);
     }
 
-    strncpy(parent->children[index + 1], rightNode->id, ID_SIZE - 1);
+    strncpy(parent->children[index + 1], rightNode->id, BUFFERSIZE - 1);
 
     for (int i = parent->n - 1; i >= index; i--) {
         parent->keys[i + 1] = parent->keys[i];
@@ -241,7 +222,7 @@ void diskWrite(btreeNode *Node, int T){
     }
 
     char filename[128];
-    snprintf(filename, sizeof(filename), "node_%s.bin", Node->id);
+    snprintf(filename, sizeof(filename), "nodes\\node_%s.bin", Node->id);
 
     FILE *file = fopen(filename, "wb");
     if(file == NULL){
@@ -272,7 +253,7 @@ btreeNode* diskRead(const char *Node_id, int T){
         return NULL;
     }
     char filename[128];
-    snprintf(filename, sizeof(filename), "node_%s.bin", Node_id);
+    snprintf(filename, sizeof(filename), "nodes\\node_%s.bin", Node_id);
 
     FILE *file = fopen(filename, "rb");
     if(file == NULL){
@@ -297,6 +278,30 @@ btreeNode* diskRead(const char *Node_id, int T){
     }
     fclose(file);
     return Node;
+}
+
+
+
+
+void saveMetadata(Metadata *meta) {
+    FILE *file = fopen("meta\\meta.bin", "wb");
+    if (file == NULL) {
+        printf("Erro ao salvar metadados!\n");
+        return;
+    }
+    fwrite(meta, sizeof(Metadata), 1, file);
+    fclose(file);
+}
+
+
+bool loadMetadata(Metadata *meta) {
+    FILE *file = fopen("meta\\meta.bin", "rb");
+    if (file == NULL) {
+        return false; // Arquivo não existe (primeira execução)
+    }
+    fread(meta, sizeof(Metadata), 1, file);
+    fclose(file);
+    return true;
 }
 
 

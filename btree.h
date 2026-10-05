@@ -44,4 +44,34 @@ void splitChild(btreeNode *parent, int index, btreeNode *fullChild, int T, Metad
 void insertCLRSNode(btreeNode *Node, int key, int T, Metadata *meta);
 void insertNonFull(btreeNode *Node, int key, int T, Metadata *meta);
 
+
+void saveMetadata(Metadata *meta);
+bool loadMetadata(Metadata *meta);
+
+
+
+
 #endif // BTREE_H_INCLUDED
+
+
+
+/*
+typedef struct btreeNode{
+    char id[BUFFERSIZE];
+    int n;
+    bool leaf;
+    int *keys;
+    char **children;
+} btreeNode;
+
+
+typedef struct SearchResult{
+    btreeNode *node; // nó onde a chave foi encontrada
+    int index;       // posição do keys em node->keys[index]
+} searchResult;
+
+typedef struct Metadata{
+    uint64_t next_id;
+    char root_id[BUFFERSIZE];
+}Metadata;
+*/
