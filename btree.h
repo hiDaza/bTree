@@ -63,7 +63,7 @@ void printBtreeRec(btreeNode *Node,int T);
 
 void printBtreeBFS(int T);
 
-
+void removeKeyBtreeNode(int key, int T);
 #endif // BTREE_H_INCLUDED
 
 

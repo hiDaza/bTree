@@ -290,6 +290,11 @@ void rodarTeste6_Print(int T) {
 
     printf("\n\t ////////////////// TESTE DO PRINT ////////// \n\n");
     printBtreeBFS(T);
+
+    printf("\n\t ///teste de remocao/////\n\n\t");
+    removeKeyBtreeNode(50,T);
+    printBtreeBFS(T);
+
 }
 
 
@@ -304,6 +309,8 @@ int main() {
 
     // Novo teste de verificação da árvore via impressão
     rodarTeste6_Print(T);
+
+
 
     return 0;
 }

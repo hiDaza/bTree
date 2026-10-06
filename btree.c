@@ -420,3 +420,18 @@ void printBtreeBFS(int T){
 }
 
 
+void removeKeyBtreeNode(int key, int T){
+    Metadata meta;
+    if(!loadMetadata(&meta)){
+        return;
+    }
+    btreeNode *Node = diskRead(meta.rootId,T);
+    searchResult search = searchBTree(Node,key,T);
+    if(search.node->leaf){
+        for(int i = search.index; i < search.node->n-1; i++){
+            search.node->keys[i] = search.node->keys[i+1];
+        }
+        search.node->n--;
+        diskWrite(search.node,T);
+    }
+}
