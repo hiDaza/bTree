@@ -11,6 +11,10 @@
 #define ID_SIZE BUFFERSIZE
 
 
+void setBaseDir(const char *path);
+
+
+
 typedef struct btreeNode {
     char id[BUFFERSIZE];
     int n;
@@ -27,6 +31,7 @@ typedef struct SearchResult {
 typedef struct Metadata {
     uint64_t next_id;
     char root_id[BUFFERSIZE]; //ponteiro para a raiz
+    char base_dir[256]; //adicionado pro conta dos testes para direcionar ao diretorio correto
 } Metadata;
 
 
@@ -45,7 +50,7 @@ void insertCLRSNode(btreeNode *Node, int key, int T, Metadata *meta);
 void insertNonFull(btreeNode *Node, int key, int T, Metadata *meta);
 
 
-void saveMetadata(Metadata *meta);
+bool saveMetadata(const Metadata *meta) ;
 bool loadMetadata(Metadata *meta);
 
 

@@ -2,6 +2,19 @@
 #include "btree.h"
 
 
+static char g_base_dir[256] = ".";
+
+// Função para definir em qual pasta o disco deve ler/gravar
+void setBaseDir(const char *path) {
+    if (path != NULL && strlen(path) > 0) {
+        strncpy(g_base_dir, path, sizeof(g_base_dir) - 1);
+        g_base_dir[sizeof(g_base_dir) - 1] = '\0';
+    }
+}
+
+
+
+
 
 btreeNode* createNode(int T, bool leaf, Metadata *meta){
     btreeNode* node = (btreeNode*) malloc(sizeof(btreeNode));
@@ -221,8 +234,8 @@ void diskWrite(btreeNode *Node, int T){
         return;
     }
 
-    char filename[128];
-    snprintf(filename, sizeof(filename), "nodes\\node_%s.bin", Node->id);
+    char filename[512];
+    snprintf(filename, sizeof(filename), "%s/nodes/node_%s.bin",g_base_dir,Node->id);
 
     FILE *file = fopen(filename, "wb");
     if(file == NULL){
@@ -230,9 +243,14 @@ void diskWrite(btreeNode *Node, int T){
         return;
     }
 
-    fwrite(&Node->n, sizeof(int), 1, file);
+    fwrite(Node->id, sizeof(char), BUFFERSIZE,file);
     fwrite(&Node->leaf, sizeof(bool), 1, file);
+    fwrite(&Node->n, sizeof(int), 1, file);
     fwrite(Node->keys, sizeof(int), 2 * T - 1, file);
+
+    for(int i = 0; i < 2 * T; i++){
+        fwrite(Node->children[i], sizeof(char),BUFFERSIZE,file);
+    }
 
     for(int i = 0; i < 2 * T ; i++){
         char buffer[BUFFERSIZE] = "";
@@ -253,7 +271,7 @@ btreeNode* diskRead(const char *Node_id, int T){
         return NULL;
     }
     char filename[128];
-    snprintf(filename, sizeof(filename), "nodes\\node_%s.bin", Node_id);
+    snprintf(filename, sizeof(filename), "%s/nodes/node_%s.bin", g_base_dir,Node_id);
 
     FILE *file = fopen(filename, "rb");
     if(file == NULL){
@@ -263,12 +281,14 @@ btreeNode* diskRead(const char *Node_id, int T){
     btreeNode *Node = (btreeNode*) malloc(sizeof(btreeNode));
     strncpy(Node->id,Node_id, BUFFERSIZE-1);
 
-    fread(&Node->n, sizeof(int),1,file);
+    fread(&Node->id, sizeof(char), BUFFERSIZE, file);
     fread(&Node->leaf, sizeof(bool),1,file);
-
+    fread(&Node->n, sizeof(int),1,file);
 
     Node->keys = (int*) malloc(sizeof(int) * (2 * T -1));
+
     fread(Node->keys, sizeof(int), 2 * T -1, file);
+
 
     Node->children = (char**) malloc(sizeof(char*) * (2 * T));
     for(int i = 0; i < 2 * T; i++){
@@ -283,26 +303,61 @@ btreeNode* diskRead(const char *Node_id, int T){
 
 
 
-void saveMetadata(Metadata *meta) {
-    FILE *file = fopen("meta\\meta.bin", "wb");
-    if (file == NULL) {
-        printf("Erro ao salvar metadados!\n");
-        return;
+bool saveMetadata(const Metadata *meta) {
+    char filepath[512];
+    snprintf(filepath, sizeof(filepath), "%s/meta/meta.bin", g_base_dir);
+
+    FILE *file = fopen(filepath, "wb");
+    if (!file) {
+        return false;
     }
+
     fwrite(meta, sizeof(Metadata), 1, file);
     fclose(file);
+    return true;
 }
 
-
 bool loadMetadata(Metadata *meta) {
-    FILE *file = fopen("meta\\meta.bin", "rb");
-    if (file == NULL) {
-        return false; // Arquivo não existe (primeira execução)
+    char filepath[512];
+    snprintf(filepath, sizeof(filepath), "%s/meta/meta.bin", g_base_dir);
+
+    FILE *file = fopen(filepath, "rb");
+    if (!file) {
+        return false;
     }
+
     fread(meta, sizeof(Metadata), 1, file);
     fclose(file);
     return true;
 }
 
+
+void printBtree(int T){
+    Metadata meta;
+    if(!loadMetadata(meta)){
+        return;
+    }else{
+        btreeNode *Node;
+        node = diskRead(meta->root_id,T);
+
+    }
+
+}
+
+void printBtreeRec(btreeNode *Node){
+    printf("ID do Node: %s\n"Node->id);
+    if(Node->leaf){
+        printf("Eh Folha\n");
+    }else{
+        printf("Nao Eh Folha\n");
+        }
+    printf("Tamanho do Node: %d\n"Node->n);
+    for(int i =0; i < Node->n-1; i++){
+        printf("%d \n"Node->keys[i]);
+    }
+    //buscar na memoria pq esta apontando para um local
+    //buscar na memória também para passar os nós da direita e esquerda
+
+}
 
 

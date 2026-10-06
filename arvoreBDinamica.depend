@@ -20,10 +20,13 @@
 	<string.h>
 	<stdint.h>
 
-1791145195 source:/home/daza/projetos/bTree/main.c
+1791243914 source:/home/daza/projetos/bTree/main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
 	"btree.h"
 
-1791145174 /home/daza/projetos/bTree/btree.h
+1791244218 /home/daza/projetos/bTree/btree.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -31,5 +34,8 @@
 	<stdint.h>
 
 1791229577 source:c:\users\gerson.lucas_unesp\desktop\projetos\btree\btree.c
+	"btree.h"
+
+1791244083 source:/home/daza/projetos/bTree/btree.c
 	"btree.h"
 
