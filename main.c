@@ -54,24 +54,24 @@ void rodarTeste1_Sequencial(int T) {
 
     Metadata meta;
     if (!loadMetadata(&meta)) {
-        meta.next_id = 0;
-        meta.root_id[0] = '\0';
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
         saveMetadata(&meta);
     }
 
-    if (strlen(meta.root_id) == 0) {
+    if (strlen(meta.rootId) == 0) {
         printf("[INFO] Populando Teste 1 do zero...\n");
         for (int i = 1; i <= 60; i++) {
             int chave = i * 10;
-            if (strlen(meta.root_id) == 0) {
+            if (strlen(meta.rootId) == 0) {
                 btreeNode *root = createNode(T, true, &meta);
                 root->keys[0] = chave;
                 root->n = 1;
-                strncpy(meta.root_id, root->id, BUFFERSIZE - 1);
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
                 diskWrite(root, T);
                 freeNode(root, T);
             } else {
-                btreeNode *root = diskRead(meta.root_id, T);
+                btreeNode *root = diskRead(meta.rootId, T);
                 insertCLRSNode(root, chave, T, &meta);
             }
         }
@@ -80,8 +80,8 @@ void rodarTeste1_Sequencial(int T) {
         printf("[INFO] Teste 1 ja existe no disco. Exibindo dados persistidos.\n");
     }
 
-    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.root_id, meta.next_id);
-    inspecionarNo(meta.root_id, T);
+    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.rootId, meta.nextId);
+    inspecionarNo(meta.rootId, T);
 }
 
 // TESTE 2: Inserção sequencial decrescente
@@ -96,24 +96,24 @@ void rodarTeste2_Decrescente(int T) {
 
     Metadata meta;
     if (!loadMetadata(&meta)) {
-        meta.next_id = 0;
-        meta.root_id[0] = '\0';
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
         saveMetadata(&meta);
     }
 
-    if (strlen(meta.root_id) == 0) {
+    if (strlen(meta.rootId) == 0) {
         printf("[INFO] Populando Teste 2 do zero...\n");
         for (int i = 60; i >= 1; i--) {
             int chave = i * 10;
-            if (strlen(meta.root_id) == 0) {
+            if (strlen(meta.rootId) == 0) {
                 btreeNode *root = createNode(T, true, &meta);
                 root->keys[0] = chave;
                 root->n = 1;
-                strncpy(meta.root_id, root->id, BUFFERSIZE - 1);
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
                 diskWrite(root, T);
                 freeNode(root, T);
             } else {
-                btreeNode *root = diskRead(meta.root_id, T);
+                btreeNode *root = diskRead(meta.rootId, T);
                 insertCLRSNode(root, chave, T, &meta);
             }
         }
@@ -122,8 +122,8 @@ void rodarTeste2_Decrescente(int T) {
         printf("[INFO] Teste 2 ja existe no disco. Exibindo dados persistidos.\n");
     }
 
-    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.root_id, meta.next_id);
-    inspecionarNo(meta.root_id, T);
+    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.rootId, meta.nextId);
+    inspecionarNo(meta.rootId, T);
 }
 
 // TESTE 3: Inserção alternada
@@ -139,26 +139,26 @@ void rodarTeste3_Desordenado(int T) {
 
     Metadata meta;
     if (!loadMetadata(&meta)) {
-        meta.next_id = 0;
-        meta.root_id[0] = '\0';
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
         saveMetadata(&meta);
     }
 
-    if (strlen(meta.root_id) == 0) {
+    if (strlen(meta.rootId) == 0) {
         printf("[INFO] Populando Teste 3 do zero...\n");
         int chaves[] = {150, 50, 200, 20, 80, 300, 10, 40, 90, 110, 120, 130, 250, 270, 280};
         int total = sizeof(chaves) / sizeof(chaves[0]);
 
         for (int i = 0; i < total; i++) {
-            if (strlen(meta.root_id) == 0) {
+            if (strlen(meta.rootId) == 0) {
                 btreeNode *root = createNode(T, true, &meta);
                 root->keys[0] = chaves[i];
                 root->n = 1;
-                strncpy(meta.root_id, root->id, BUFFERSIZE - 1);
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
                 diskWrite(root, T);
                 freeNode(root, T);
             } else {
-                btreeNode *root = diskRead(meta.root_id, T);
+                btreeNode *root = diskRead(meta.rootId, T);
                 insertCLRSNode(root, chaves[i], T, &meta);
             }
         }
@@ -167,8 +167,8 @@ void rodarTeste3_Desordenado(int T) {
         printf("[INFO] Teste 3 ja existe no disco. Exibindo dados persistidos.\n");
     }
 
-    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.root_id, meta.next_id);
-    inspecionarNo(meta.root_id, T);
+    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.rootId, meta.nextId);
+    inspecionarNo(meta.rootId, T);
 }
 
 //TESTE 4 150 elementos
@@ -183,24 +183,24 @@ void rodarTeste4_Carga(int T) {
 
     Metadata meta;
     if (!loadMetadata(&meta)) {
-        meta.next_id = 0;
-        meta.root_id[0] = '\0';
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
         saveMetadata(&meta);
     }
 
-    if (strlen(meta.root_id) == 0) {
+    if (strlen(meta.rootId) == 0) {
         printf("[INFO] Populando Teste 4 do zero...\n");
         for (int i = 1; i <= 150; i++) {
             int chave = i * 5;
-            if (strlen(meta.root_id) == 0) {
+            if (strlen(meta.rootId) == 0) {
                 btreeNode *root = createNode(T, true, &meta);
                 root->keys[0] = chave;
                 root->n = 1;
-                strncpy(meta.root_id, root->id, BUFFERSIZE - 1);
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
                 diskWrite(root, T);
                 freeNode(root, T);
             } else {
-                btreeNode *root = diskRead(meta.root_id, T);
+                btreeNode *root = diskRead(meta.rootId, T);
                 insertCLRSNode(root, chave, T, &meta);
             }
         }
@@ -209,8 +209,8 @@ void rodarTeste4_Carga(int T) {
         printf("[INFO] Teste 4 ja existe no disco. Exibindo dados persistidos.\n");
     }
 
-    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.root_id, meta.next_id);
-    inspecionarNo(meta.root_id, T);
+    printf("[RESULTADO] Raiz Atual: %s | Proximo ID: %lu\n", meta.rootId, meta.nextId);
+    inspecionarNo(meta.rootId, T);
 }
 
 
@@ -224,12 +224,12 @@ void rodarTeste5_Busca(int T) {
     setBaseDir(dir);
 
     Metadata meta;
-    if (!loadMetadata(&meta) || strlen(meta.root_id) == 0) {
+    if (!loadMetadata(&meta) || strlen(meta.rootId) == 0) {
         printf("[ERRO] Execute o Teste 1 primeiro para gerar os dados no disco!\n");
         return;
     }
 
-    btreeNode *root = diskRead(meta.root_id, T);
+    btreeNode *root = diskRead(meta.rootId, T);
     int chave_busca = 250;
 
     printf("[INFO] Realizando searchBTree da chave %d...\n", chave_busca);
@@ -249,13 +249,61 @@ void rodarTeste5_Busca(int T) {
     freeNode(root, T);
 }
 
+
+// TESTE 6: teste do print
+void rodarTeste6_Print(int T) {
+    const char *dir = "testes/teste_print";
+    printf("\n==================================================\n");
+    printf("  TESTE 6: Verificacao da Arvore com printBtree (10..90)\n");
+    printf("==================================================\n");
+
+    setBaseDir(dir);
+    prepararPastasDoTeste(dir);
+
+    Metadata meta;
+    if (!loadMetadata(&meta)) {
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
+        saveMetadata(&meta);
+    }
+
+    if (strlen(meta.rootId) == 0) {
+        printf("[INFO] Populando Teste de Print do zero com chaves 10..90...\n");
+        for (int i = 1; i <= 50; i++) {
+            int chave = i * 5;
+            if (strlen(meta.rootId) == 0) {
+                btreeNode *root = createNode(T, true, &meta);
+                root->keys[0] = chave;
+                root->n = 1;
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
+                diskWrite(root, T);
+                freeNode(root, T);
+            } else {
+                btreeNode *root = diskRead(meta.rootId, T);
+                insertCLRSNode(root, chave, T, &meta);
+            }
+        }
+        saveMetadata(&meta);
+    } else {
+        printf("[INFO] Teste de Print ja existe no disco. Carregando dados existentes...\n");
+    }
+
+    printf("\n\t ////////////////// TESTE DO PRINT ////////// \n\n");
+    printBtreeBFS(T);
+}
+
+
 int main() {
     int T = 3;
+
     rodarTeste1_Sequencial(T);
     rodarTeste2_Decrescente(T);
     rodarTeste3_Desordenado(T);
     rodarTeste4_Carga(T);
     rodarTeste5_Busca(T);
+
+    // Novo teste de verificação da árvore via impressão
+    rodarTeste6_Print(T);
 
     return 0;
 }

@@ -11,6 +11,10 @@
 #define ID_SIZE BUFFERSIZE
 
 
+#define COR_VERDE   "\033[1;32m"
+#define COR_CIANO   "\033[1;36m"
+#define COR_AMARELO "\033[1;33m"
+#define COR_RESET   "\033[0m"
 void setBaseDir(const char *path);
 
 
@@ -29,9 +33,9 @@ typedef struct SearchResult {
 } searchResult;
 
 typedef struct Metadata {
-    uint64_t next_id;
-    char root_id[BUFFERSIZE]; //ponteiro para a raiz
-    char base_dir[256]; //adicionado pro conta dos testes para direcionar ao diretorio correto
+    uint64_t nextId;
+    char rootId[BUFFERSIZE]; //ponteiro para a raiz
+    char baseDir[256]; //adicionado pro conta dos testes para direcionar ao diretorio correto
 } Metadata;
 
 
@@ -53,7 +57,11 @@ void insertNonFull(btreeNode *Node, int key, int T, Metadata *meta);
 bool saveMetadata(const Metadata *meta) ;
 bool loadMetadata(Metadata *meta);
 
+void printBtreeDFS(int T);
 
+void printBtreeRec(btreeNode *Node,int T);
+
+void printBtreeBFS(int T);
 
 
 #endif // BTREE_H_INCLUDED

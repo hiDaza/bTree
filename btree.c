@@ -2,13 +2,13 @@
 #include "btree.h"
 
 
-static char g_base_dir[256] = ".";
+static char gBaseDir[256] = ".";
 
 // Função para definir em qual pasta o disco deve ler/gravar
 void setBaseDir(const char *path) {
     if (path != NULL && strlen(path) > 0) {
-        strncpy(g_base_dir, path, sizeof(g_base_dir) - 1);
-        g_base_dir[sizeof(g_base_dir) - 1] = '\0';
+        strncpy(gBaseDir, path, sizeof(gBaseDir) - 1);
+        gBaseDir[sizeof(gBaseDir) - 1] = '\0';
     }
 }
 
@@ -19,7 +19,7 @@ void setBaseDir(const char *path) {
 btreeNode* createNode(int T, bool leaf, Metadata *meta){
     btreeNode* node = (btreeNode*) malloc(sizeof(btreeNode));
 
-    numToBase62(meta->next_id++, node->id);
+    numToBase62(meta->nextId++, node->id);
 
     node->n = 0;
     node->leaf = leaf;
@@ -139,7 +139,7 @@ void insertCLRSNode(btreeNode *Node, int key,int T,Metadata *meta){
         newRoot = createNode(T,false,meta);
         strncpy(newRoot->children[0],Node->id,BUFFERSIZE-1);
         splitChild(newRoot,0,Node,T,meta);
-        strncpy(meta->root_id,newRoot->id, BUFFERSIZE-1); //com a criação do newRoot agora existe uma nova raiz que deve ser salva no metadata
+        strncpy(meta->rootId,newRoot->id, BUFFERSIZE-1); //com a criação do newRoot agora existe uma nova raiz que deve ser salva no metadata
         insertNonFull(newRoot,key,T,meta);
         freeNode(newRoot,T);
         freeNode(Node,T);
@@ -207,8 +207,8 @@ void numToBase62(uint64_t num, char *out) {
 }
 
 /*
-char* allocateNode(btreeNode **newNode, int T, Metadata *meta) {
     uint64_t raw_id;
+char* allocateNode(btreeNode **newNode, int T, Metadata *meta) {
 
     if (meta->free_count > 0) {
         raw_id = meta->free_ids[--meta->free_count];
@@ -235,7 +235,7 @@ void diskWrite(btreeNode *Node, int T){
     }
 
     char filename[512];
-    snprintf(filename, sizeof(filename), "%s/nodes/node_%s.bin",g_base_dir,Node->id);
+    snprintf(filename, sizeof(filename), "%s/nodes/node_%s.bin",gBaseDir,Node->id);
 
     FILE *file = fopen(filename, "wb");
     if(file == NULL){
@@ -266,12 +266,12 @@ void diskWrite(btreeNode *Node, int T){
 }
 
 
-btreeNode* diskRead(const char *Node_id, int T){
-    if(Node_id == NULL){
+btreeNode* diskRead(const char *NodeId, int T){
+    if(NodeId == NULL){
         return NULL;
     }
     char filename[128];
-    snprintf(filename, sizeof(filename), "%s/nodes/node_%s.bin", g_base_dir,Node_id);
+    snprintf(filename, sizeof(filename), "%s/nodes/node_%s.bin", gBaseDir,NodeId);
 
     FILE *file = fopen(filename, "rb");
     if(file == NULL){
@@ -279,7 +279,7 @@ btreeNode* diskRead(const char *Node_id, int T){
     }
 
     btreeNode *Node = (btreeNode*) malloc(sizeof(btreeNode));
-    strncpy(Node->id,Node_id, BUFFERSIZE-1);
+    strncpy(Node->id,NodeId, BUFFERSIZE-1);
 
     fread(&Node->id, sizeof(char), BUFFERSIZE, file);
     fread(&Node->leaf, sizeof(bool),1,file);
@@ -305,7 +305,7 @@ btreeNode* diskRead(const char *Node_id, int T){
 
 bool saveMetadata(const Metadata *meta) {
     char filepath[512];
-    snprintf(filepath, sizeof(filepath), "%s/meta/meta.bin", g_base_dir);
+    snprintf(filepath, sizeof(filepath), "%s/meta/meta.bin", gBaseDir);
 
     FILE *file = fopen(filepath, "wb");
     if (!file) {
@@ -319,7 +319,7 @@ bool saveMetadata(const Metadata *meta) {
 
 bool loadMetadata(Metadata *meta) {
     char filepath[512];
-    snprintf(filepath, sizeof(filepath), "%s/meta/meta.bin", g_base_dir);
+    snprintf(filepath, sizeof(filepath), "%s/meta/meta.bin", gBaseDir);
 
     FILE *file = fopen(filepath, "rb");
     if (!file) {
@@ -332,31 +332,90 @@ bool loadMetadata(Metadata *meta) {
 }
 
 
-void printBtree(int T){
+void printBtreeDFS(int T){
     Metadata meta;
-    if(!loadMetadata(meta)){
+    if(!loadMetadata(&meta)){
         return;
     }else{
         btreeNode *Node;
-        node = diskRead(meta->root_id,T);
-
+        Node = diskRead(meta.rootId,T);
+        printBtreeRec(Node,T);
     }
-
 }
 
-void printBtreeRec(btreeNode *Node){
-    printf("ID do Node: %s\n"Node->id);
+void printBtreeRec(btreeNode *Node, int T){
+printf("ID do Node: %s\n",Node->id);
     if(Node->leaf){
         printf("Eh Folha\n");
     }else{
-        printf("Nao Eh Folha\n");
-        }
-    printf("Tamanho do Node: %d\n"Node->n);
-    for(int i =0; i < Node->n-1; i++){
-        printf("%d \n"Node->keys[i]);
+    printf("Nao Eh Folha\n");
     }
-    //buscar na memoria pq esta apontando para um local
-    //buscar na memória também para passar os nós da direita e esquerda
+    printf("Tamanho do Node: %d\n",Node->n);
+
+    for(int i =0; i <= Node->n-1; i++){
+        printf("Chaves da posicao [%d]: %d \n",i, Node->keys[i]);
+        }
+    btreeNode *nextNode;
+    if(!Node->leaf){
+            for(int j = 0; j <= Node->n ; j++){
+            nextNode = diskRead(Node->children[j],T);
+            printBtreeRec(nextNode,T);
+        }
+    }
+}
+
+void printBtreeBFS(int T){
+    char queu [1000][BUFFERSIZE];
+    int init = 0;
+    int end = 0;
+    int level = 0;
+    Metadata meta;
+    if(!loadMetadata(&meta)){
+        return;
+    }
+    btreeNode *Node;
+    Node = diskRead(meta.rootId,T);
+    strncpy(queu[end],Node->id,BUFFERSIZE-1);
+    end++;
+    level++;
+    while(init < end){
+        printf(COR_AMARELO "Nivel %d: "COR_RESET, level);
+        int nodeInTheLevel = end - init;
+
+        for(int i =0; i < nodeInTheLevel; i++){
+            char currentId[BUFFERSIZE];
+            strncpy(currentId,queu[init],BUFFERSIZE-1);
+            init++;
+
+            btreeNode *currentNode = diskRead(currentId,T);
+
+            printf(COR_AMARELO "ID <%s>: "COR_RESET, currentNode->id);
+
+            printf(COR_VERDE "|" COR_RESET);
+           // printf("COR_AMARELO Tamanho do Node: %d\n"COR_RESET,currentNode->n);
+
+            for(int i =0; i <= currentNode->n-1; i++){
+                printf(COR_VERDE "%d " COR_RESET, currentNode->keys[i]);
+                if(i < currentNode->n-1){
+                    printf(" ");
+                    }
+                }
+
+                printf(COR_VERDE "|    " COR_RESET);
+            if(!currentNode->leaf){
+               // printf(COR_CIANO " (Filhos: ");
+                for(int j = 0; j <= currentNode->n; j++){
+                    strncpy(queu[end], currentNode->children[j],BUFFERSIZE-1);
+                 //   printf("<%s>",currentNode->children[j]);
+                    end++;
+                }
+
+            }
+            freeNode(currentNode,T);
+        }
+        printf("\n\n");
+        level++;
+    }
 
 }
 
