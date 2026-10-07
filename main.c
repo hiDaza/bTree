@@ -291,12 +291,112 @@ void rodarTeste6_Print(int T) {
     printf("\n\t ////////////////// TESTE DO PRINT ////////// \n\n");
     printBtreeBFS(T);
 
-    printf("\n\t ///teste de remocao/////\n\n\t");
-    removeKeyBtreeNode(50,T);
-    printBtreeBFS(T);
-
 }
 
+
+// TESTE 7: caso 1 da remoção
+void rodarTeste7_RemocaoFolha(int T) {
+    const char *dir = "testes/teste_07";
+    printf("  TESTE 7: Remocao em No Folha (Caso 1\n");
+
+    setBaseDir(dir);
+    prepararPastasDoTeste(dir);
+
+    Metadata meta;
+    if (!loadMetadata(&meta)) {
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
+        saveMetadata(&meta);
+    }
+
+    if (strlen(meta.rootId) == 0) {
+        printf("[INFO] Populando Teste 7 do zero...\n");
+        int chaves[] = {10, 20, 30, 40, 50, 60, 70};
+        int total = sizeof(chaves) / sizeof(chaves[0]);
+
+        for (int i = 0; i < total; i++) {
+            if (strlen(meta.rootId) == 0) {
+                btreeNode *root = createNode(T, true, &meta);
+                root->keys[0] = chaves[i];
+                root->n = 1;
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
+                diskWrite(root, T);
+                freeNode(root, T);
+            } else {
+                btreeNode *root = diskRead(meta.rootId, T);
+                insertCLRSNode(root, chaves[i], T, &meta);
+            }
+        }
+        saveMetadata(&meta);
+    } else {
+        printf("[INFO] Teste 7 ja existe no disco. Carregando dados existentes...\n");
+    }
+
+    printf("\n--- ARVORE ANTES DA REMOCAO (FOLHA) ---\n");
+    printBtreeBFS(T);
+
+    int chaveRemover = 20;
+    printf("\n[INFO] Executando removeCLRS da chave folha: %d...\n", chaveRemover);
+    removeCLRS(chaveRemover, T);
+
+    printf("\n--- ARVORE APOS REMOCAO (FOLHA) ---\n");
+    printBtreeBFS(T);
+}
+
+
+// TESTE 8: remocao do caso 2 (a) em no interno
+void rodarTeste8_RemocaoCaso2a(int T) {
+    const char *dir = "testes/teste_08";
+
+    printf("  TESTE 8: Remocao em No Interno - Nivel 2 (Caso 2a)\n");
+
+    setBaseDir(dir);
+    prepararPastasDoTeste(dir);
+
+    Metadata meta;
+    if (!loadMetadata(&meta)) {
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
+        saveMetadata(&meta);
+    }
+
+    if (strlen(meta.rootId) == 0) {
+        printf("[INFO] Populando Teste 8 com 3 niveis do zero...\n");
+        int chaves[] = {
+            10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+            110, 120, 130, 140, 150, 160, 170, 180, 190, 22, 25
+        };
+        int total = sizeof(chaves) / sizeof(chaves[0]);
+
+        for (int i = 0; i < total; i++) {
+            if (strlen(meta.rootId) == 0) {
+                btreeNode *root = createNode(T, true, &meta);
+                root->keys[0] = chaves[i];
+                root->n = 1;
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
+                diskWrite(root, T);
+                freeNode(root, T);
+            } else {
+                btreeNode *root = diskRead(meta.rootId, T);
+                insertCLRSNode(root, chaves[i], T, &meta);
+            }
+        }
+        saveMetadata(&meta);
+    } else {
+        printf("[INFO] Teste 8 ja existe no disco. Carregando dados existentes...\n");
+    }
+
+    printf("\n--- ARVORE ANTES DA REMOCAO (NO INTERNO NIVEL 2) ---\n");
+    printBtreeBFS(T);
+
+    // A chave 30 esta no no interno do Nivel 2 (|30 60|) e seu filho esquerdo possui 4 chaves (>= T)
+    int chaveRemover = 30;
+    printf("\n[INFO] Executando removeCLRS da chave %d no Nivel 2...\n", chaveRemover);
+    removeCLRS(chaveRemover, T);
+
+    printf("\n--- ARVORE APOS REMOCAO (NO INTERNO NIVEL 2) ---\n");
+    printBtreeBFS(T);
+}
 
 int main() {
     int T = 3;
@@ -307,9 +407,10 @@ int main() {
     rodarTeste4_Carga(T);
     rodarTeste5_Busca(T);
 
-    // Novo teste de verificação da árvore via impressão
     rodarTeste6_Print(T);
 
+    rodarTeste7_RemocaoFolha(T);
+    rodarTeste8_RemocaoCaso2a(T);
 
 
     return 0;

@@ -420,18 +420,59 @@ void printBtreeBFS(int T){
 }
 
 
-void removeKeyBtreeNode(int key, int T){
+void removeCLRS(int key, int T){
     Metadata meta;
     if(!loadMetadata(&meta)){
         return;
     }
     btreeNode *Node = diskRead(meta.rootId,T);
     searchResult search = searchBTree(Node,key,T);
+    if(search.node == NULL){
+        freeNode(Node,T);
+        return;
+    }
+    //caso 1 é folha
     if(search.node->leaf){
         for(int i = search.index; i < search.node->n-1; i++){
             search.node->keys[i] = search.node->keys[i+1];
         }
         search.node->n--;
         diskWrite(search.node,T);
+    }else{
+    //caso 2 é nó interno sub caso (a)
+        btreeNode *son = diskRead(search.node->children[search.index],T);
+        if(son->n >= T){
+            int newK = getPredecessor(son,T);
+            removeCLRS(newK,T);
+            search.node->keys[search.index] = newK;
+            freeNode(son,T);
+            diskWrite(search.node,T);
+        }
+    }
+
+}
+
+
+int getPredecessor(btreeNode *Node,int T){
+    int kLine = Node->keys[Node->n-1];
+    if(!Node->leaf){
+        btreeNode *son = diskRead(Node->children[Node->n],T);
+        int result = getPredecessor(son,T);
+        freeNode(son,T);
+
+        return result;
+    }else{
+        return kLine;
     }
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -63,7 +63,9 @@ void printBtreeRec(btreeNode *Node,int T);
 
 void printBtreeBFS(int T);
 
-void removeKeyBtreeNode(int key, int T);
+void removeCLRS(int key, int T);
+
+int getPredecessor(btreeNode *Node, int T);
 #endif // BTREE_H_INCLUDED
 
 
