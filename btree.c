@@ -439,15 +439,52 @@ void removeCLRS(int key, int T){
         search.node->n--;
         diskWrite(search.node,T);
     }else{
-    //caso 2 é nó interno sub caso (a)
-        btreeNode *son = diskRead(search.node->children[search.index],T);
-        if(son->n >= T){
-            int newK = getPredecessor(son,T);
+
+        btreeNode *leftSon = diskRead(search.node->children[search.index],T);
+           //caso 2 é nó interno sub caso (a)
+        if(leftSon->n >= T){
+            int newK = getPredecessor(leftSon,T);
             removeCLRS(newK,T);
             search.node->keys[search.index] = newK;
-            freeNode(son,T);
+            freeNode(leftSon,T);
             diskWrite(search.node,T);
+        }else{
+
+            btreeNode *rightSon = diskRead(search.node->children[search.index+1],T);
+            if(leftSon->n == T-1){
+                //caso 2 sub caso (b)
+                if(rightSon->n >= T){
+                int newK = getSucessor(rightSon,T);
+                removeCLRS(newK,T);
+                search.node->keys[search.index] = newK;
+                freeNode(rightSon,T);
+                diskWrite(search.node,T);
+
+                }else{
+                    //caso 2 sub caso(c)
+                    leftSon->keys[leftSon->n] = search.node->keys[search.index];
+                    leftSon->n++;
+                    for(int i = 0; i <= rightSon->n-1; i++){
+                        leftSon->keys[leftSon->n] = rightSon->keys[i];
+                        leftSon->children[leftSon->n+1] = rightSon->children[i];
+                        leftSon->n++;
+                    }
+                    leftSon->children[leftSon->n] = rightSon->children[rightSon->n];
+
+                    for(int i = search.index+1; i < search.node->n;i++){
+                        search.node->keys[i-1] = search.node->keys[i];
+                        search.node->children[i] = search.node->children[i+1];
+                    }
+
+                    search.node->n--;
+
+
+                }
+
+            }
         }
+
+
     }
 
 }
@@ -466,7 +503,18 @@ int getPredecessor(btreeNode *Node,int T){
     }
 }
 
+int getSucessor(btreeNode *Node, int T){
+    int kLine = Node->keys[0];
+    if(!Node->leaf){
+        btreeNode *son = diskRead(Node->children[0],T);
+        int result = getSucessor(son,T);
+        freeNode(son,T);
+        return result;
+    }else{
+        return kLine;
+    }
 
+}
 
 
 
