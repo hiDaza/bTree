@@ -464,9 +464,10 @@ void removeCLRS(int key, int T){
                     //caso 2 sub caso(c)
                     leftSon->keys[leftSon->n] = search.node->keys[search.index];
                     leftSon->n++;
+
                     for(int i = 0; i <= rightSon->n-1; i++){
                         leftSon->keys[leftSon->n] = rightSon->keys[i];
-                        leftSon->children[leftSon->n+1] = rightSon->children[i];
+                        leftSon->children[leftSon->n] = rightSon->children[i];
                         leftSon->n++;
                     }
                     leftSon->children[leftSon->n] = rightSon->children[rightSon->n];
@@ -477,8 +478,10 @@ void removeCLRS(int key, int T){
                     }
 
                     search.node->n--;
-
-
+                    freeNode(rightSon,T);
+                    diskWrite(leftSon,T);
+                    diskWrite(search.node,T);
+                    removeCLRS(key,T);
                 }
 
             }

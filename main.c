@@ -45,9 +45,7 @@ void inspecionarNo(const char *node_id, int T) {
 // TESTE 1: Inserção squencial crescente
 void rodarTeste1_Sequencial(int T) {
     const char *dir = "testes/teste_01";
-    printf("\n==================================================\n");
     printf("  TESTE 1: Insercao Sequencial Crescente (10..600)\n");
-    printf("==================================================\n");
 
     setBaseDir(dir);
     prepararPastasDoTeste(dir);
@@ -87,9 +85,7 @@ void rodarTeste1_Sequencial(int T) {
 // TESTE 2: Inserção sequencial decrescente
 void rodarTeste2_Decrescente(int T) {
     const char *dir = "testes/teste_02";
-    printf("\n==================================================\n");
     printf("  TESTE 2: Insercao Sequencial Decrescente (600..10)\n");
-    printf("==================================================\n");
 
     setBaseDir(dir);
     prepararPastasDoTeste(dir);
@@ -130,9 +126,7 @@ void rodarTeste2_Decrescente(int T) {
 
 void rodarTeste3_Desordenado(int T) {
     const char *dir = "testes/teste_03";
-    printf("\n==================================================\n");
     printf("  TESTE 3: Insercaoo Alternada\n");
-    printf("==================================================\n");
 
     setBaseDir(dir);
     prepararPastasDoTeste(dir);
@@ -174,9 +168,7 @@ void rodarTeste3_Desordenado(int T) {
 //TESTE 4 150 elementos
 void rodarTeste4_Carga(int T) {
     const char *dir = "testes/teste_04";
-    printf("\n==================================================\n");
     printf("  TESTE 4: Teste de Carga (150 Elementos)\n");
-    printf("==================================================\n");
 
     setBaseDir(dir);
     prepararPastasDoTeste(dir);
@@ -217,9 +209,7 @@ void rodarTeste4_Carga(int T) {
 // TESTE 5 - busca
 void rodarTeste5_Busca(int T) {
     const char *dir = "testes/teste_01"; // Consulta a massa de dados gerada no Teste 1
-    printf("\n==================================================\n");
     printf("  TESTE 5: Busca de Chave no Teste 1 (Apenas Leitura)\n");
-    printf("==================================================\n");
 
     setBaseDir(dir);
 
@@ -253,9 +243,7 @@ void rodarTeste5_Busca(int T) {
 // TESTE 6: teste do print
 void rodarTeste6_Print(int T) {
     const char *dir = "testes/teste_print";
-    printf("\n==================================================\n");
     printf("  TESTE 6: Verificacao da Arvore com printBtree (10..90)\n");
-    printf("==================================================\n");
 
     setBaseDir(dir);
     prepararPastasDoTeste(dir);
@@ -389,12 +377,116 @@ void rodarTeste8_RemocaoCaso2a(int T) {
     printf("\n--- ARVORE ANTES DA REMOCAO (NO INTERNO NIVEL 2) ---\n");
     printBtreeBFS(T);
 
-    // A chave 30 esta no no interno do Nivel 2 (|30 60|) e seu filho esquerdo possui 4 chaves (>= T)
     int chaveRemover = 30;
     printf("\n[INFO] Executando removeCLRS da chave %d no Nivel 2...\n", chaveRemover);
     removeCLRS(chaveRemover, T);
 
     printf("\n--- ARVORE APOS REMOCAO (NO INTERNO NIVEL 2) ---\n");
+    printBtreeBFS(T);
+}
+
+
+
+
+//TESTE 9: remoção  do caso 2 sub caso (b)
+void rodarTeste9_RemocaoCaso2b(int T) {
+    const char *dir = "testes/teste_09";
+    printf("  TESTE 9: Remocao em No Interno (Caso 2b - Sucessor)\n");
+
+    setBaseDir(dir);
+    prepararPastasDoTeste(dir);
+
+    Metadata meta;
+    if (!loadMetadata(&meta)) {
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
+        saveMetadata(&meta);
+    }
+
+    if (strlen(meta.rootId) == 0) {
+        printf("[INFO] Populando Teste 9 do zero...\n");
+        int chaves[] = {10, 20, 30, 40, 50, 60, 70};
+        int total = sizeof(chaves) / sizeof(chaves[0]);
+
+        for (int i = 0; i < total; i++) {
+            if (strlen(meta.rootId) == 0) {
+                btreeNode *root = createNode(T, true, &meta);
+                root->keys[0] = chaves[i];
+                root->n = 1;
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
+                diskWrite(root, T);
+                freeNode(root, T);
+            } else {
+                btreeNode *root = diskRead(meta.rootId, T);
+                insertCLRSNode(root, chaves[i], T, &meta);
+            }
+        }
+        saveMetadata(&meta);
+    } else {
+        printf("[INFO] Teste 9 ja existe no disco. Carregando dados existentes...\n");
+    }
+
+    printf("\n--- ARVORE ANTES DA REMOCAO (CASO 2b) ---\n");
+    printBtreeBFS(T);
+
+    int chaveRemover = 30;
+    printf("\n[INFO] Executando removeCLRS da chave interna (Caso 2b): %d...\n", chaveRemover);
+    removeCLRS(chaveRemover, T);
+
+    printf("\n--- ARVORE APOS REMOCAO (CASO 2b) ---\n");
+    printBtreeBFS(T);
+}
+
+
+//TESTE 10: caso remoção 2 sub caso (c)
+void rodarTeste10_RemocaoCaso2c(int T) {
+    const char *dir = "testes/teste_10";
+    printf("  TESTE 10: Remocao em No Interno (Caso 2c - Merge)\n");
+
+    setBaseDir(dir);
+    prepararPastasDoTeste(dir);
+
+    Metadata meta;
+    if (!loadMetadata(&meta)) {
+        meta.nextId = 0;
+        meta.rootId[0] = '\0';
+        saveMetadata(&meta);
+    }
+
+    if (strlen(meta.rootId) == 0) {
+        printf("[INFO] Populando Teste 10 do zero...\n");
+        int chaves[] = {10, 20, 30, 40, 50, 60};
+        int total = sizeof(chaves) / sizeof(chaves[0]);
+
+        for (int i = 0; i < total; i++) {
+            if (strlen(meta.rootId) == 0) {
+                btreeNode *root = createNode(T, true, &meta);
+                root->keys[0] = chaves[i];
+                root->n = 1;
+                strncpy(meta.rootId, root->id, BUFFERSIZE - 1);
+                diskWrite(root, T);
+                freeNode(root, T);
+            } else {
+                btreeNode *root = diskRead(meta.rootId, T);
+                insertCLRSNode(root, chaves[i], T, &meta);
+            }
+        }
+
+        removeCLRS(60, T);
+
+        saveMetadata(&meta);
+    } else {
+        printf("[INFO] Teste 10 ja existe no disco. Carregando dados existentes...\n");
+    }
+
+    printf("\n--- ARVORE ANTES DA REMOCAO (CASO 2c) ---\n");
+    printBtreeBFS(T);
+
+    int chaveRemover = 30;
+    printf("\n[INFO] Executando removeCLRS da chave interna (Caso 2c): %d...\n", chaveRemover);
+    removeCLRS(chaveRemover, T);
+
+    printf("\n--- ARVORE APOS REMOCAO (CASO 2c) ---\n");
     printBtreeBFS(T);
 }
 
@@ -411,6 +503,8 @@ int main() {
 
     rodarTeste7_RemocaoFolha(T);
     rodarTeste8_RemocaoCaso2a(T);
+    rodarTeste9_RemocaoCaso2b(T);
+    rodarTeste10_RemocaoCaso2c(T);
 
 
     return 0;
